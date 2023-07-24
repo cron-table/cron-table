@@ -1,0 +1,27 @@
+name: test
+
+on: push
+
+jobs:
+  rufo:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "ruby-head"
+        bundler-cache: true
+    - run: bundle exec rufo --check .
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        ruby: ["3.2", "ruby-head"]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+    - run: bundle exec rails test

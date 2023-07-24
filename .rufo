@@ -1,0 +1,1 @@
+excludes [cron-table.gemspec,test/dummy/db/schema.rb]
