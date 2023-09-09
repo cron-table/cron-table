@@ -14,6 +14,14 @@ module CronTable
       def message = "Provide a block to `crontable(..) { }` with code to execute"
     end
 
+    class InvalidEvery < ArgumentError
+      def initialize(every)
+        @every = every
+      end
+
+      def message = "Invalid every: #{every} "
+    end
+
     extend ActiveSupport::Concern
 
     included do |_base|
@@ -26,6 +34,7 @@ module CronTable
 
         block ||= -> { self.perform_later } if self.respond_to?(:perform_later)
         raise MissingBlockError if block.nil?
+        raise InvalidEvery.new(every) unless every.is_a?(ActiveSupport::Duration)
 
         CronTable.all[key] = Definition.new(key:, every:, block:)
 

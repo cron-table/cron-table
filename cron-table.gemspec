@@ -19,6 +19,6 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "rails", "~> 7.0"
-  spec.add_development_dependency "mocha", "~> 1.0"
+  spec.add_development_dependency "mocha", "~> 2.0"
   spec.add_development_dependency "rufo", "~> 0.16"
 end
