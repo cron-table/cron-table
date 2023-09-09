@@ -30,7 +30,7 @@ class CronTableTest < ActiveSupport::TestCase
   test "if every is not a valid period" do
     job_class do |job|
       assert_raises(CronTable::Schedule::InvalidEvery) do
-        job.class_eval { crontable(every: 1) {} }
+        job.class_eval { crontable(every: 1) { } }
       end
     end
   end
