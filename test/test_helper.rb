@@ -1,6 +1,7 @@
 require_relative "../test/dummy/config/environment"
 require "rails/test_help"
 require "mocha/minitest"
+require "minitest"
 
 class ActiveSupport::TestCase
   def job_class
