@@ -4,9 +4,7 @@ module CronTable
 
     server do
       Thread.new do
-        cron = CronTable::Server.new
-        cron.sync!
-        cron.run until true
+        CronTable::Server.new.run!
       end if CronTable.attach_to_server
     end
   end

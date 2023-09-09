@@ -24,13 +24,15 @@ class CronTable::Server
   end
 
   def run!
-    @exit = false
-    next_run_at = CronTable::Item.minimum(:next_run_at) || SLEEP_IDLE.from_now
-    interruptible_sleep(next_run_at.to_f - Time.now.to_f)
-
-    CronTable::Item.lock.where(next_run_at: ..Time.now).each do |cron|
-      process(cron)
+    CronTable::Item.connection_pool.with_connection do
+      sync!
     end
+
+    @exit = false
+
+    CronTable::Item.connection_pool.with_connection do
+      run_once!
+    end until exit?
   end
 
   def exit!
@@ -43,6 +45,15 @@ class CronTable::Server
   end
 
   private
+
+  def run_once!
+    next_run_at = CronTable::Item.minimum(:next_run_at) || SLEEP_IDLE.from_now
+    interruptible_sleep(next_run_at.to_f - Time.now.to_f)
+
+    CronTable::Item.lock.where(next_run_at: ..Time.now).each do |cron|
+      process(cron)
+    end
+  end
 
   def process(cron)
     Rails.application.reloader.wrap do
