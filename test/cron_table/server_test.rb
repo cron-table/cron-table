@@ -7,9 +7,5 @@ module CronTable
       Server.new.sync!
       assert_equal(["ExampleJob", "hourly"], Item.pluck(:key).sort)
     end
-
-    test "" do
-
-    end
   end
 end
