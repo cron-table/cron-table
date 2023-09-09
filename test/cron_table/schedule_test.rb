@@ -1,8 +1,8 @@
 require "test_helper"
 
-class CronTableTest < ActiveSupport::TestCase
+class CronTable::ScheduleTest < ActiveSupport::TestCase
   setup do
-    CronTable.all.clear
+    CronTable.stubs(all: {})
   end
 
   test "list is empty when no crons are defined" do
@@ -21,7 +21,7 @@ class CronTableTest < ActiveSupport::TestCase
   test "if no block is provided, job is scheduled without params" do
     job_class do |job|
       job.expects(:perform_later).with()
-      job.class_eval { crontable(every: 1.day) }
+      job.class_eval { crontable(every: :noon) }
 
       CronTable.all[job.name].call
     end
@@ -31,6 +31,9 @@ class CronTableTest < ActiveSupport::TestCase
     job_class do |job|
       assert_raises(CronTable::Schedule::InvalidEvery) do
         job.class_eval { crontable(every: 1) { } }
+      end
+      assert_raises(CronTable::Schedule::InvalidEvery) do
+        job.class_eval { crontable(every: :undefined) { } }
       end
     end
   end

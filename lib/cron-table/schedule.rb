@@ -19,7 +19,7 @@ module CronTable
         @every = every
       end
 
-      def message = "Invalid every: #{every} "
+      def message = "Invalid every: `#{@every.inspect}`"
     end
 
     extend ActiveSupport::Concern
@@ -34,7 +34,13 @@ module CronTable
 
         block ||= -> { self.perform_later } if self.respond_to?(:perform_later)
         raise MissingBlockError if block.nil?
-        raise InvalidEvery.new(every) unless every.is_a?(ActiveSupport::Duration)
+
+        case every
+        when ActiveSupport::Duration
+        when *CronTable.every.keys
+        else
+          raise InvalidEvery.new(every)
+        end
 
         CronTable.all[key] = Definition.new(key:, every:, block:)
 

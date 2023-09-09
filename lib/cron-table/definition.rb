@@ -5,7 +5,7 @@ module CronTable
     def next_run_at(context)
       case every
       when ActiveSupport::Duration
-        (context.last_run_at || Time.now) + every
+        (context.last_run_at || Time.current) + every
       when Symbol
         CronTable.every.fetch(every).call(context)
       end

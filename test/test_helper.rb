@@ -4,10 +4,10 @@ require "mocha/minitest"
 
 class ActiveSupport::TestCase
   def job_class
-    CronTableTest.const_set("Job", Class.new { include CronTable::Schedule })
+    CronTable.const_set("Job", Class.new { include CronTable::Schedule })
 
-    yield CronTableTest::Job
+    yield CronTable::Job
   ensure
-    CronTableTest.send(:remove_const, "Job")
+    CronTable.send(:remove_const, "Job")
   end
 end

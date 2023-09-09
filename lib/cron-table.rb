@@ -9,16 +9,7 @@ module CronTable
 
   mattr_accessor :preload_dirs, default: ["app/jobs"]
 
-  mattr_accessor :every, default: {
-            midnight: ->(context) {
-              context.last_run_at.present? ?
-                (context.last_run_at + 1.day).midnight : Time.now.midnight
-            },
-            noon: ->(context) {
-              context.last_run_at.present? ?
-                (context.last_run_at + 1.day).noon : Time.now.noon
-            },
-          }
+  mattr_accessor :every, default: {}
 
   @@all = nil
   def self.all
