@@ -3,6 +3,7 @@ require "cron-table/engine"
 require "cron-table/definition"
 require "cron-table/schedule"
 require "cron-table/context"
+require "cron-table/middlewares"
 
 module CronTable
   mattr_accessor :attach_to_server, default: Rails.env.production?
@@ -22,5 +23,9 @@ module CronTable
     end
 
     @@all
+  end
+
+  def self.register(middleware)
+    Middlewares.include(middleware)
   end
 end

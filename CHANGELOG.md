@@ -1,8 +1,8 @@
-# unreleased
+# 0.3
 
-* fixes
 * add custom named `every` parameters
-* validate `every` and block params
+* middleware
+* fixes
 
 # 0.2
 

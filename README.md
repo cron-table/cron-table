@@ -24,5 +24,16 @@ Use `every` to specify when cron should run. Allowed values include:
   CronTable.every[:custom] = ->(context) { rand(1.hour..1.day).from_now }
 ```
 
+## Middlewares
+Cron execution can be instrumented using middleware, eg
+```
+module CronTableInstrumentation
+  def process(context)
+    ElasticAPM.with_transaction(context.cron.key, "cron") { super }
+  end
+end
+CronTable.register(CronTableInstrumentation)
+```
+
 ## License
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

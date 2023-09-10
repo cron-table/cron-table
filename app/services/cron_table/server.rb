@@ -4,6 +4,7 @@ module CronTable
     SLEEP_IDLE = 1.hour
 
     def initialize
+      @middlewares = Middlewares.new
     end
 
     def sync!
@@ -33,9 +34,7 @@ module CronTable
 
       @exit = false
 
-      Item.connection_pool.with_connection do
-        run_once!
-      end until exit?
+      run_once! until exit?
     end
 
     def exit!
@@ -50,20 +49,22 @@ module CronTable
     private
 
     def run_once!
-      next_run_at = Item.minimum(:next_run_at) || SLEEP_IDLE.from_now
-      interruptible_sleep(next_run_at.to_f - Time.now.to_f)
-
-      Item.lock.where(next_run_at: ..Time.now).each do |cron|
-        process(cron)
+      next_run_at = Item.connection_pool.with_connection do
+        Item.lock.where(next_run_at: ..Time.now).each do |cron|
+          process(cron)
+        end
+        Item.minimum(:next_run_at) || SLEEP_IDLE.from_now
       end
+      interruptible_sleep(next_run_at.to_f - Time.now.to_f)
     end
 
     def process(cron)
       Rails.application.reloader.wrap do
         definition = CronTable.all.fetch(cron.key)
-        definition.call
-
-        context = Context.new(last_run_at: cron.next_run_at)
+        context = Context.new(last_run_at: cron.next_run_at, cron: definition)
+        @middlewares.process(context) do
+          definition.call
+        end
         cron.update(last_run_at: Time.now, next_run_at: definition.next_run_at(context))
       end
     rescue => e
